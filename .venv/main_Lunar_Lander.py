@@ -8,12 +8,12 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("device:", device)
 
-    baseline = 'none'  # 'none' o 'std' o 'value'
+    baseline = 'value'  # 'none' o 'std' o 'value'
     project_name = 'Homework-2-Lunar-Lander'
     run_name = "Baseline" + '_' + baseline
     gamma = 0.99
     lr = 1e-3
-    episodes = 1000
+    episodes = 10000
 
     wandb.login(key="bfa1df1c98b555b96aa3777a18a6e8ca9b082d53")
     run = wandb.init(

@@ -80,7 +80,6 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
             run.log({
                 'eval/avg_reward': avg_reward,
                 'eval/avg_length': avg_length,
-                'eval/episode': episode + 1
             })
 
             print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Avg. length = {avg_length:.1f}')
@@ -173,7 +172,6 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
             run.log({
                 'eval/avg_reward': avg_reward,
                 'eval/avg_length': avg_length,
-                'eval/episode': episode + 1,
             })
 
             print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Avg. length = {avg_length:.1f}')

@@ -7,6 +7,7 @@ from reinforce import reinforce_Lunar_Lander
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("device:", device)
+
     baseline = 'none'  # 'none' o 'std' o 'value'
     project_name = 'Homework-2-Lunar-Lander'
     run_name = "Baseline" + '_' + baseline

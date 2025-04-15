@@ -7,7 +7,7 @@ from common import run_episode
 
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     baseline = 'std' # 'none' o 'std' o 'value'
     project_name = 'Homework-2-CartPole'
     run_name = "Lunar-Ladder/Baseline" + '_' + baseline
@@ -30,12 +30,12 @@ if __name__ == "__main__":
 
     env = gymnasium.make('CartPole-v1')
 
-    policy = PolicyNet(env).to(device)
-    value_net = ValueNet(env.observation_space.shape[0]).to(device)
+    policy = PolicyNet(env)
+    value_net = ValueNet(env.observation_space.shape[0])
 
 
 
-    reinforce_Cart_Pole(policy, env, run,gamma, lr, baseline, episodes, value_net=value_net, device=device)
+    reinforce_Cart_Pole(policy, env, run,gamma, lr, baseline, episodes, value_net=value_net)
 
     env.close()
     run.finish()

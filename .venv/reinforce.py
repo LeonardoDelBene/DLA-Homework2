@@ -4,7 +4,7 @@ from networks import save_checkpoint
 from common import run_episode, compute_returns
 
 def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
-                        eval_interval=100, eval_episodes=5, value_net=None, device='cpu'):
+                        eval_interval=100, eval_episodes=5, value_net=None):
 
     if baseline not in ['none', 'std', 'value']:
         raise ValueError(f'Unknown baseline {baseline}')
@@ -22,9 +22,9 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
     for episode in range(num_episodes):
         log = {}
 
-        observations, actions, log_probs, rewards = run_episode(env, policy, device=device)
-        log_probs = torch.stack(log_probs).to(device)
-        returns = torch.tensor(compute_returns(rewards, gamma), dtype=torch.float32).to(device)
+        observations, actions, log_probs, rewards = run_episode(env, policy)
+        log_probs = torch.stack(log_probs)
+        returns = torch.tensor(compute_returns(rewards, gamma), dtype=torch.float32)
 
         running_rewards.append(0.05 * returns[0].item() + 0.95 * running_rewards[-1])
         log['episode_length'] = len(returns)
@@ -40,7 +40,7 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
             base_returns = (returns - returns.mean()) / (returns.std() + 1e-8)
         elif baseline == 'value':
             value_net.train()
-            observations_tensor = torch.stack(observations).detach().to(device)
+            observations_tensor = torch.stack(observations).detach()
             values = value_net(observations_tensor).squeeze()
             advantages = returns - values
 
@@ -60,7 +60,6 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
         log['policy_loss'] = policy_loss.item()
         run.log(log)
 
-        # Periodic evaluation
         if (episode + 1) % eval_interval == 0:
             policy.eval()
             if value_net is not None:
@@ -70,7 +69,7 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
 
             with torch.no_grad():
                 for _ in range(eval_episodes):
-                    _, _, _, rewards_eval = run_episode(env, policy, device=device)
+                    _, _, _, rewards_eval = run_episode(env, policy)
                     total_rewards.append(sum(rewards_eval))
                     episode_lengths.append(len(rewards_eval))
 
@@ -94,7 +93,7 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
 
 
 def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
-                           eval_interval=100, eval_episodes=5, value_net=None, device='cpu'):
+                           eval_interval=100, eval_episodes=20, value_net=None):
     if baseline not in ['none', 'std', 'value']:
         raise ValueError(f'Unknown baseline {baseline}')
 
@@ -113,8 +112,8 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
     for episode in range(num_episodes):
         log = {}
 
-        observations, actions, log_probs, rewards = run_episode(env, policy, maxlen=1000, device=device)
-        returns = torch.tensor(compute_returns(rewards, gamma), dtype=torch.float32, device=device)
+        observations, actions, log_probs, rewards = run_episode(env, policy, maxlen=1000)
+        returns = torch.tensor(compute_returns(rewards, gamma), dtype=torch.float32)
 
         running_rewards.append(0.05 * returns[0].item() + 0.95 * running_rewards[-1])
         log['return'] = returns[0].item()
@@ -133,7 +132,7 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
         elif baseline == 'std':
             base_returns = (returns - returns.mean()) / returns.std()
         elif baseline == 'value':
-            observations_tensor = torch.stack(observations).detach().to(device)
+            observations_tensor = torch.stack(observations).detach()
             values = value_net(observations_tensor).squeeze()
             advantages = returns - values
 
@@ -146,13 +145,12 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
             base_returns = advantages.detach()
 
         opt.zero_grad()
-        policy_loss = (-log_probs.to(device) * base_returns).mean()
+        policy_loss = (-log_probs * base_returns).mean()
         policy_loss.backward()
         opt.step()
         log['policy_loss'] = policy_loss.item()
         run.log(log)
 
-        # Periodic evaluation
         if (episode + 1) % eval_interval == 0:
             policy.eval()
             if value_net is not None:
@@ -162,19 +160,25 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
 
             with torch.no_grad():
                 for _ in range(eval_episodes):
-                    _, _, _, rewards_eval = run_episode(env, policy, device=device)
+                    _, _, _, rewards_eval = run_episode(env, policy)
                     total_rewards.append(sum(rewards_eval))
                     episode_lengths.append(len(rewards_eval))
 
-            avg_reward = sum(total_rewards) / eval_episodes
-            avg_length = sum(episode_lengths) / eval_episodes
+            # Conversione in tensor per calcolare media e deviazione standard
+            rewards_tensor = torch.tensor(total_rewards, dtype=torch.float32)
+            lengths_tensor = torch.tensor(episode_lengths, dtype=torch.float32)
+
+            avg_reward = rewards_tensor.mean().item()
+            avg_length = lengths_tensor.mean().item()
+            std_reward = rewards_tensor.std(unbiased=False).item()
 
             run.log({
                 'eval/avg_reward': avg_reward,
+                'eval/std_reward': std_reward,
                 'eval/avg_length': avg_length,
             })
 
-            print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Avg. length = {avg_length:.1f}')
+            print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Std. reward = {std_reward:.2f}, Avg. length = {avg_length:.1f}')
             policy.train()
             if value_net is not None:
                 value_net.train()

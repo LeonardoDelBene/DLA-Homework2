@@ -13,7 +13,7 @@ def compute_returns(rewards, gamma):
     total_returns = np.cumsum(discounted_rewards)
     return np.flip(total_returns, axis=0).copy()
 
-def run_episode(env, policy, maxlen=500, device='cpu'):
+def run_episode(env, policy, maxlen=500):
     observations = []
     actions = []
     log_probs = []
@@ -23,7 +23,7 @@ def run_episode(env, policy, maxlen=500, device='cpu'):
     obs, info = env.reset()
     for _ in range(maxlen):
         # Convert observation to tensor and move to device
-        obs_tensor = torch.tensor(obs, dtype=torch.float32).to(device)
+        obs_tensor = torch.tensor(obs, dtype=torch.float32)
 
         # Get action and log_prob from policy
         action, log_prob = select_action(obs_tensor, policy)
@@ -41,4 +41,3 @@ def run_episode(env, policy, maxlen=500, device='cpu'):
             break
 
     return observations, actions, torch.stack(log_probs), rewards
-

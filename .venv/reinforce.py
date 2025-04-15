@@ -170,15 +170,13 @@ def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
 
             avg_reward = rewards_tensor.mean().item()
             avg_length = lengths_tensor.mean().item()
-            std_reward = rewards_tensor.std(unbiased=False).item()
 
             run.log({
                 'eval/avg_reward': avg_reward,
-                'eval/std_reward': std_reward,
                 'eval/avg_length': avg_length,
             })
 
-            print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Std. reward = {std_reward:.2f}, Avg. length = {avg_length:.1f}')
+            print(f'[EVAL] Episode {episode + 1}: Avg. reward = {avg_reward:.2f}, Avg. length = {avg_length:.1f}')
             policy.train()
             if value_net is not None:
                 value_net.train()

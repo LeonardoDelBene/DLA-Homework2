@@ -14,3 +14,4 @@ Esercizio 3
 link Progetto
 https://wandb.ai/leonardodelbene27-universit-di-firenze/Homework-2-Lunar-Lander?nw=nwuserleonardodelbene27
 link Report
+https://wandb.ai/leonardodelbene27-universit-di-firenze/Homework-2-Lunar-Lander/reports/Report-Homework-2-Esercizio-3--VmlldzoxMjI5ODc5Nw

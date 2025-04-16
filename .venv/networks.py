@@ -55,7 +55,6 @@ class Policy_Lunar(nn.Module):
         super().__init__()
         hidden_layers = [nn.Linear(env.observation_space.shape[0],width), nn.ReLU()]
         hidden_layers += [nn.Linear(width,width), nn.ReLU()]
-        hidden_layers += [nn.Linear(width,width), nn.ReLU()]
         self.hidden = nn.Sequential(*hidden_layers)
         self.out = nn.Linear(width,env.action_space.n)
 
@@ -69,8 +68,6 @@ class Value_Lunar(nn.Module):
             super().__init__()
             self.net = nn.Sequential(
                 nn.Linear(obs_dim, width),
-                nn.ReLU(),
-                nn.Linear(width, width),
                 nn.ReLU(),
                 nn.Linear(width, width),
                 nn.ReLU(),

@@ -94,7 +94,7 @@ def reinforce_Cart_Pole(policy, env, run, gamma, lr, baseline, num_episodes,
 
 
 def reinforce_Lunar_Lander(policy, env, run, gamma, lr, baseline, num_episodes,
-                           eval_interval=200, value_net=None):
+                           eval_interval=100, value_net=None):
     if baseline not in ['none', 'std', 'value']:
         raise ValueError(f'Unknown baseline {baseline}')
 
